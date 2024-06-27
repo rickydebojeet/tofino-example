@@ -1,7 +1,15 @@
+# Load driver if not loaded
+```
+cd $SDE/install/lib/modules
+sudo insmod bf_kpkt.ko
+```
+
+
 # Connection and configuration
-Consider Server A and Server B are connected with tofino switch at port 49 and 50
-Server A IPv4 = 192.168.0.1, MAC: 00:00:00:00:00:01
-Server B IPv4 = 192.168.0.2, MAC: 00:00:00:00:00:02
+Consider Server A, Server B, and Server C are connected with tofino switch at port 49, 50, and 52
+Server A IPv4 = 192.168.150.10/24, MAC: 3c:fd:fe:9e:7b:5d
+Server B IPV4 = 192.168.150.20/24, MAC: 3c:fd:fe:9e:7e:34
+Server C IPV4 = 192.168.150.30/24, MAC: 3c:fd:fe:9e:7e:35
 
 # Compilation
 ```
@@ -27,6 +35,10 @@ port-enb 49/-
 port-add 50/- 40G NONE
 an-set 50/- 2
 port-enb 50/-
+port-add 52/- 40G NONE
+an-set 52/- 1
+port-enb 52/-
+show
 # Wait for 10 second
 show
 exit
@@ -44,14 +56,18 @@ From here onwards it is a python shell.
 
 ### ARP Rules
 ```
-bfrt.mac_router.pipe.SwitchIngress.t_arp.add_with_a_arp("192.168.0.1", "00:00:00:00:00:01")
-bfrt.mac_router.pipe.SwitchIngress.t_arp.add_with_a_arp("192.168.0.2", "00:00:00:00:00:02")
+bfrt.mac_router.pipe.SwitchIngress.t_arp.add_with_a_arp("192.168.150.10", "3c:fd:fe:9e:7b:5d")
+bfrt.mac_router.pipe.SwitchIngress.t_arp.add_with_a_arp("192.168.150.20", "3c:fd:fe:9e:7e:34")
+bfrt.mac_router.pipe.SwitchIngress.t_arp.add_with_a_arp("192.168.150.30", "3c:fd:fe:9e:7e:35")
+
 ```
 
 ### MAC Rules
 ```
-bfrt.mac_router.pipe.SwitchIngress.t_mac_forward.add_with_a_mac_forward("00:00:00:00:00:01", 28)
-bfrt.mac_router.pipe.SwitchIngress.t_mac_forward.add_with_a_mac_forward("00:00:00:00:00:02", 44)
+bfrt.mac_router.pipe.SwitchIngress.t_mac_forward.add_with_a_mac_forward("3c:fd:fe:9e:7b:5d", 28)
+bfrt.mac_router.pipe.SwitchIngress.t_mac_forward.add_with_a_mac_forward("3c:fd:fe:9e:7e:34", 60)
+bfrt.mac_router.pipe.SwitchIngress.t_mac_forward.add_with_a_mac_forward("3c:fd:fe:9e:7e:35", 44)
+
 ```
 
 Server A and B should be able to ping each other at this point
